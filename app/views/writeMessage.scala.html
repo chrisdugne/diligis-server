@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<title>Diligis - write a message</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" media="all" href="@routes.Assets.at("stylesheets/mobile.css")">
+</head>
+
+<body id="body" class="mobile">
+
+	<h2 id="titleWrite"></h2>
+	
+	<textarea id="text"></textarea>
+	
+	<button id="validateButton" type="submit" class="primary rounded">Send</button>
+	<button id="cancelButton" type="submit" class="primary rounded">Cancel</button>
+</body>
+
+
+<!-- Libs -->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+
+<script type="text/javascript">
+
+   $(function() {
+      
+      $("#titleWrite").text("Your message (200)") 
+      $("#titleWrite").val("")
+      window.message = ""
+      
+      $("#text").keyup(function() {
+         $("#text").removeClass("error rounded")
+         window.message = $("#text").val();
+         
+         $("#titleWrite").text("Your message (" + (200 - window.message.length) + ")") 
+      });
+      
+      $("#validateButton").click(function(){
+	      var messageReady = window.message.length < 201
+	      
+	      if (messageReady) {
+			var url = "/messageWriten"
+			url += "?message=" + encodeURIComponent(window.message)
+	         
+			window.location.href = url
+	      }
+	      else{
+	         $("#text").addClass("error rounded")
+	      }
+      });
+
+      $("#cancelButton").click(function(){
+         var url = "/messageWriten"
+         url += "?cancel=1"
+         window.location.href = url
+      });
+   });
+</script>
+
+</html>

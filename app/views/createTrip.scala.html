@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<title>Diligis - create a trip</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" media="all" href="@routes.Assets.at("stylesheets/mobile.css")">
+</head>
+
+<body id="body" class="mobile">
+
+	<h2>Create a trip</h2>
+
+	<div class="panel panelGeoloc snapper" id="panelGeoloc">
+		<div id="geoloc" class="row-fluid">
+			<div class="span9">
+				<p>Name your trip : <input type="text" id="tripName"></p>
+			</div>
+		</div>
+	</div>
+	
+	<p>
+		You'll add flight or train journeys and destinations. 
+	</p>
+	<p>
+		Let's start, where do you travel from? 
+	</p>
+	<div id="geoloc" class="row-fluid">
+		<div class="span9">
+			<p>
+				City : <input type="text" id="GeoLoc" name="GeotLoc" class="inputGeoloc">
+			</p>
+		</div>
+		<div class="span2 offset1">
+			<div id="GeoLocGo" class="btn-small btn-primary">
+				<i class="icon-arrow-right icon-white"></i>
+			</div>
+		</div>
+	</div>
+
+	<br/>
+	<br/>
+	<button id="validateButton" type="submit" class="primary rounded">Start Trip</button>
+	<button id="cancelButton" type="submit" class="primary rounded">Cancel</button>
+</body>
+
+
+<!-- Libs -->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/libs/jquery.ui.touch-punch.min.js")"></script>
+
+<!-- Google api for geoloc -->
+<script type="text/javascript"
+	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqCm7-bMqqXVwTnAtbmNRk2c3rmwCIAzc&sensor=false&libraries=places,panoramio"></script>
+
+<script type="text/javascript" src="@routes.Assets.at("javascripts/libs/geoloc.js")"></script>
+
+<script type="text/javascript">
+   $(function() {
+      window.trip = {}
+      window.trip.name = null
+      window.trip.location = {}
+
+      window.geoloc = new GeoLoc("GeoLoc");
+   });
+
+   $(function() {
+      $("#tripName").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+      $("#GeoLoc").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+
+      window.removeAllErrors = function() {
+         $("#tripName").removeClass("error rounded")
+         $("#GeoLoc").removeClass("error rounded")
+      }
+   });
+
+   $(function() {
+      $("#GeoLoc").click(function() {
+         $("#GeoLoc").removeClass("error")
+         $("#GeoLoc").removeClass("rounded")
+      });
+
+      $("#GeoLoc").keypress(function() {
+         window.geoloc.location = {}
+      });
+   });
+
+   $(function() {
+      $("#validateButton").click(
+            function() {
+               var tripReady = true
+
+               window.trip.location = window.geoloc.location
+         	   window.trip.name =  $("#tripName").val().trim()
+         	   
+               if (!window.trip.name) {
+                  $("#tripName").addClass("error rounded")
+                  tripReady = false
+               }
+         
+               if (!window.trip.location.name) {
+                  $("#GeoLoc").addClass("error rounded")
+                  tripReady = false
+               }
+
+               if (tripReady) {
+                  var url = "/addTrip"
+				  url += "?locationName=" 	+ window.trip.location.name 
+				  url += "&locationLat=" 	+ window.trip.location.lat
+				  url += "&locationLon=" 	+ window.trip.location.lon
+				  url += "&name=" 			+ window.trip.name
+                  window.location.href = url
+               }
+            });
+
+   });
+
+   $(function() {
+      $("#cancelButton").click(function() {
+         var url = "/addTrip"
+         url += "?cancel=1"
+         window.location.href = url
+      });
+   });
+</script>
+
+</html>

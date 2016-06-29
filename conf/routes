@@ -1,0 +1,61 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+####################################################################################
+# Web pages
+
+GET     /                           controllers.Application.home()
+GET     /createTrip                 controllers.Application.createTrip()
+GET     /createDestination          controllers.Application.createDestination()
+GET     /createTransport          	controllers.Application.createTransport()
+
+GET     /editTransport          	controllers.Application.editTransport()
+GET     /editDestination          	controllers.Application.editDestination()
+
+GET     /writeMessage          		controllers.Application.writeMessage()
+
+GET     /addTrip                 	controllers.Application.home()
+GET     /addDestination             controllers.Application.home()
+GET     /addTransport            	controllers.Application.home()
+
+GET     /destinationEdited          controllers.Application.home()
+GET     /transportEdited          	controllers.Application.home()
+
+GET     /messageWriten      		controllers.Application.home()
+
+####################################################################################
+# Services
+
+#---------------------------------------------------------------------------
+# AccountService 
+
+POST	/getAccount					controllers.AccountService.getAccount()
+POST	/getUser					controllers.AccountService.getUser()
+POST 	/getTrips					controllers.AccountService.getTrips()
+POST 	/getTrip					controllers.AccountService.getTrip()
+POST 	/getJourney					controllers.AccountService.getJourney()
+
+POST	/saveUser					controllers.AccountService.saveUser()
+
+POST 	/createTrip					controllers.AccountService.createTrip()
+POST 	/createTransport			controllers.AccountService.createTransport()
+POST 	/createDestination			controllers.AccountService.createDestination()
+
+POST 	/editJourney				controllers.AccountService.editJourney()
+POST 	/deleteJourney				controllers.AccountService.deleteJourney()
+
+# DEPRECATED v1
+# POST 	/refreshTrips				controllers.AccountService.refreshTrips()
+# POST 	/verifyTripitProfile		controllers.AccountService.verifyTripitProfile()
+
+#---------------------------------------------------------------------------
+# EventService
+
+POST 	/getStream					controllers.EventService.getStream()
+POST 	/sendMessage				controllers.EventService.sendMessage()
+POST 	/sendAnswer					controllers.EventService.sendAnswer()
+POST	/readEvent					controllers.EventService.readEvent()

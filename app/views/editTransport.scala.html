@@ -1,0 +1,304 @@
+@(lastTransport: Boolean, startTime: Long, endTime: Long, journeyType:Integer, airline:String, startAirport:String, endAirport:String, number:String, seat:String, railcar:String)
+<!DOCTYPE html> 
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<title>Diligis - Edit this transport</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" media="all" href="@routes.Assets.at("stylesheets/mobile.css")">
+</head>
+
+<body id="body" class="mobile">
+
+	<h2>Edit this transport</h2>
+	
+	<div id="radio" >
+		<!-- 
+		<input type="radio" id="flight" name="radio1" checked="checked" ></input> 
+		<label for="flight" class="radio"> Flight</label> 
+		<input type="radio" id="train" name="radio1"></input> 
+		<label for="train" class="endradio1 radio" > Train</label>
+		 -->
+		
+		@if(lastTransport){
+			<input type="radio" id="return" name="radio2" ></input> 
+			<label for="return" class="radio"> Return</label> 
+			<input type="radio" id="onward" name="radio2"></input> 
+			<label for="onward" class="radio"> Onward</label>
+		}
+	</div>
+	
+	
+	<p id="airlineEntry">
+		Airline : <input type="text" id="airline" placeholder="Enter the airline" />
+	</p>
+	<p id="departureEntry">
+		Departure airport : <input type="text" id="startAirport" placeholder="Departure airport code (ex: LAX)" />
+	</p>
+	<p id="numberEntry">
+		Flight number : <input type="text" id="number" />
+	</p>
+	<p id="seatEntry">
+		Seat : <input type="text" id="seat" />
+	</p>
+	<p id="railcarEntry" class="hide">
+		Railcar : <input type="text" id="railcar" />
+	</p>
+
+	<p>
+		Start : <input type="text" id="start" placeholder="Pick a start time" />
+	</p>
+	<p>
+		End : <input type="text" id="end" placeholder="Pick an end time" />
+	</p>
+	<p id="arrivalEntry">
+		Arrival airport : <input type="text" id="endAirport" placeholder="Arrival airport code (ex : LAX)" />
+	</p>
+
+
+	<button id="validateButton" type="submit" class="primary rounded">Ok</button>
+	<button id="cancelButton" type="submit" class="primary rounded">Cancel</button>
+</body>
+
+
+<!-- Libs -->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+<script type="text/javascript" src="@routes.Assets.at("javascripts/libs/jquery.ui.touch-punch.min.js")"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/libs/timepicker.js")"></script>
+
+<script type="text/javascript">
+   $(function() {
+      window.FLIGHT = 2
+      window.TRAIN 	= 3
+
+      window.transport = {}
+      window.transport.airline 			= "@airline"
+      window.transport.startAirport 	= "@startAirport"
+      window.transport.endAirport		= "@endAirport"
+      window.transport.number 			= "@number"
+      window.transport.seat 			= "@seat"
+      window.transport.railcar 			= "@railcar"
+      window.transport.startTime 		= @startTime
+      window.transport.endTime 			= @endTime
+
+      window.transport.type 			= @journeyType
+      window.transport.onward 			= !@lastTransport
+
+      //--------------------------------------//
+      
+      if(window.transport.type == window.FLIGHT)
+	      $("#flight").attr("checked", "checked");
+      else
+	      $("#train").attr("checked", "checked");
+
+      //--------------------------------------//
+
+      if(window.transport.onward)
+	      $("#onward").attr("checked", "checked");
+      else
+	      $("#return").attr("checked", "checked");
+
+      //--------------------------------------//
+
+      if(window.transport.seat == "nil")
+	      $("#airline").attr("placeholder", "Enter the airline");
+      else
+	      $("#airline").val(window.transport.airline);
+
+      //--------------------------------------//
+
+      $("#startAirport").val(window.transport.startAirport);
+      $("#endAirport").val(window.transport.endAirport);
+      $("#number").val(window.transport.number);
+
+      //--------------------------------------//
+
+      if(window.transport.seat == "nil")
+	      $("#seat").attr("placeholder", "Enter your seat number");
+      else
+	      $("#seat").val(window.transport.seat);
+
+      //--------------------------------------//
+
+      $("#start").datetimepicker({
+         changeMonth 	: true,
+         dateFormat 	: "d M, y    ",
+         onClose : function(selectedDate) {
+            if($("#start").datepicker("getDate")){
+             	$("#end").datepicker("option", "minDate", selectedDate);
+             	$("#end").datepicker("option", "maxDate", new Date($("#start").datepicker("getDate").getTime() + 24*60*60*1000));
+               	$('#end').datepicker("setDate", new Date($("#start").datepicker("getDate").getTime()) );
+             	window.transport.startTime = $("#start").datepicker("getDate").getTime()
+            }
+         }
+      }).attr('readonly','readonly');;
+      
+      $("#end").datetimepicker({
+         changeMonth : true,
+         dateFormat 	: "d M, y    ",
+         onClose : function(selectedDate) {
+               if($("#end").datepicker("getDate")){
+         	   		$("#start").datepicker("option", "maxDate", selectedDate);
+            		window.transport.endTime = $("#end").datepicker("getDate").getTime()
+               }
+         }
+      }).attr('readonly','readonly');;
+
+      //-----------------------------------------------//
+
+     $('#start').datepicker("setDate", new Date(window.transport.startTime) );
+     $('#end').datepicker("setDate", new Date(window.transport.endTime) );
+   	 $("#end").datepicker("option", "maxDate", new Date(window.transport.startTime + 24*60*60*1000));
+
+   	 //-----------------------------------------------//
+   	 
+      $("#startAirport").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+   	 $("#endAirport").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+   	 $("#number").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+      $("#seat").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+      $("#railcar").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+      $("#start").mousedown(function() {
+         $("#start").removeClass("error rounded")
+         $("#end").removeClass("error rounded")
+      });
+
+      $("#end").mousedown(function() {
+         $("#start").removeClass("error rounded")
+         $("#end").removeClass("error rounded")
+      });
+
+      window.removeAllErrors = function() {
+         $("#startAirport").removeClass("error rounded")
+         $("#endAirport").removeClass("error rounded")
+         $("#number").removeClass("error rounded")
+         $("#seat").removeClass("error rounded")
+         $("#railcar").removeClass("error rounded")
+         $("#start").removeClass("error rounded")
+         $("#end").removeClass("error rounded")
+      }
+   });
+
+   $(function() {
+      $("#radio").buttonset();
+
+      $("#flight").click(function() {
+         window.removeAllErrors()
+         window.transport.type = window.FLIGHT
+         $("#seatEntry").removeClass("hide")
+         $("#railcarEntry").addClass("hide")
+
+         $("#number").attr("placeholder", "Enter the flight number");
+         $("#seat").attr("placeholder", "Enter your seat number");
+      });
+
+      $("#train").click(function() {
+         window.removeAllErrors()
+         window.transport.type = window.TRAIN
+         $("#seatEntry").addClass("hide")
+         $("#railcarEntry").removeClass("hide")
+
+         $("#number").attr("placeholder", "Enter the train number");
+         $("#railcar").attr("placeholder", "Enter your railcar number");
+      });
+
+      $("#return").click(function() {
+         window.transport.onward = false 
+      });
+
+      $("#onward").click(function() {
+         window.transport.onward = true 
+      });
+
+   });
+
+   $(function() {
+      $("#validateButton").click(
+            function() {
+               var transportReady = true
+				
+               window.transport.startAirport 	= $("#startAirport").val().trim()
+               window.transport.endAirport		= $("#endAirport").val().trim()
+               window.transport.airline 		= $("#airline").val().trim()
+               window.transport.number 			= $("#number").val().trim()
+               window.transport.seat 			= $("#seat").val().trim()
+               window.transport.railcar 		= $("#railcar").val().trim()
+               
+               if (!window.transport.startAirport) {
+                  $("#startAirport").addClass("error rounded")
+                  transportReady = false
+               }
+
+               if (!window.transport.endAirport) {
+                  $("#endAirport").addClass("error rounded")
+                  transportReady = false
+               }
+
+               if (!window.transport.number) {
+                  $("#number").addClass("error rounded")
+                  transportReady = false
+               }
+
+               if (!window.transport.startTime) {
+                  $("#start").addClass("error rounded")
+                  transportReady = false
+               }
+
+               if (!window.transport.endTime) {
+                  $("#end").addClass("error rounded")
+                  transportReady = false
+               }
+
+               if (window.transport.startTime && window.transport.endTime
+                     && window.transport.endTime < window.transport.startTime) {
+                  $("#start").addClass("error rounded")
+                  $("#end").addClass("error rounded")
+                  transportReady = false
+               }
+
+               if (transportReady) {
+                  var url = "/transportEdited"
+				  url += "?number=" 		+ window.transport.number
+				  url += "&startAirport=" 	+ window.transport.startAirport
+				  url += "&endAirport=" 	+ window.transport.endAirport
+				  url += "&airline=" 		+ window.transport.airline
+				  url += "&railcar=" 		+ window.transport.railcar
+				  url += "&seat=" 			+ window.transport.seat
+				  url += "&startTime=" 		+ window.transport.startTime
+				  url += "&endTime=" 		+ window.transport.endTime
+				  url += "&type=" 			+ window.transport.type
+				  url += "&onward=" 		+ window.transport.onward
+				  
+                  window.location.href = url
+               }
+            });
+
+   });
+
+   $(function() {
+      $("#cancelButton").click(function() {
+         var url = "/transportEdited"
+         url += "?cancel=1"
+         window.location.href = url
+      });
+   });
+</script>
+
+</html>

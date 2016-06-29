@@ -1,0 +1,156 @@
+@(startTime:Long, endTime:Long, location:String)
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<title>Diligis - Edit a destination</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" media="all" href="@routes.Assets.at("stylesheets/mobile.css")">
+</head>
+
+<body id="body" class="mobile">
+
+	<h2>Edit this destination</h2>
+
+	<div class="panel panelGeoloc snapper" id="panelGeoloc">
+		<div id="geoloc" class="row-fluid">
+			<div class="span9">
+				<p>
+					Location : <input type="text" id="GeoLoc" name="GeotLoc" class="inputGeoloc"/>
+				</p>
+			</div>
+			<div class="span2 offset1">
+				<div id="GeoLocGo" class="btn-small btn-primary">
+					<i class="icon-arrow-right icon-white"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="nights"></div>
+	<div id="slider"></div>
+	
+	<br/>
+	<button id="validateButton" type="submit" class="primary rounded">Ok</button>
+	<button id="cancelButton" type="submit" class="primary rounded">Cancel</button>
+</body>
+
+
+<!-- Libs -->
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script type="text/javascript" src="@routes.Assets.at("javascripts/libs/jquery.ui.touch-punch.min.js")"></script>
+
+<!-- Google api for geoloc -->
+<script type="text/javascript"
+	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqCm7-bMqqXVwTnAtbmNRk2c3rmwCIAzc&sensor=false&libraries=places,panoramio"></script>
+
+<script type="text/javascript" src="@routes.Assets.at("javascripts/libs/geoloc.js")"></script>
+
+<script type="text/javascript">
+   $(function() {
+      
+      window.destination = {}
+
+      //--------------------------//
+      
+      var time = @endTime - @startTime
+      console.log(time)
+      var nbNights = Math.floor(time / (24*60*60*1000)) + 1
+      
+      $("#nights").append("<p>"+nbNights+" night"+(nbNights > 1 ? "s" : "")+"</p>")
+      window.destination.nbNights = nbNights
+
+      //--------------------------//
+      
+      window.geoloc = new GeoLoc("GeoLoc");
+      $( "#GeoLoc" ).val("@location")
+
+      window.destination.newLocation = {
+         name : "same",
+         lat : "same",
+         lon : "same"
+      }
+
+      console.log(window.destination.newLocation)
+      //--------------------------//
+
+      $( "#slider" ).slider({
+         range: "min",
+         min: 0,
+         max: 10,
+         step: 1,
+         value: nbNights,
+         slide: function(){
+            return function( event, ui ) {
+               window.destination.nbNights  = ui.value;
+               $("#nights").empty()
+               $("#nights").append("<p>"+window.destination.nbNights+" night"+(window.destination.nbNights > 1 ? "s" : "")+"</p>")
+            }
+         }()
+      });
+
+      //--------------------------//
+
+      $("#GeoLoc").click(function() {
+         $(this).removeClass("error rounded")
+      });
+
+      window.removeAllErrors = function() {
+         $("#GeoLoc").removeClass("error rounded")
+      }
+
+
+      $("#GeoLoc").click(function() {
+         $("#GeoLoc").removeClass("error")
+         $("#GeoLoc").removeClass("rounded")
+      });
+
+      $("#GeoLoc").keypress(function() {
+         console.log("keypressed")
+         window.geoloc.newLocation = {}
+      });
+
+      //--------------------------//
+      
+      $("#validateButton").click(
+          function() {
+            var destinationReady = true
+
+            if (window.geoloc.location.name)
+	            window.destination.newLocation = window.geoloc.location
+	            
+            console.log(window.destination.newLocation)
+            if (!window.destination.newLocation.name) {
+               $("#GeoLoc").addClass("error rounded")
+               destinationReady = false
+            }
+
+            if (destinationReady) {
+               
+               var startTime = @startTime
+               var endTime = startTime + window.destination.nbNights * 24*60*60*1000
+               endTime = endTime + (new Date().getTimezoneOffset()*60*1000) - endTime % (24*60*60*1000)
+               
+               var url = "/destinationEdited"
+				  url += "?locationName=" 	+ window.destination.newLocation.name 
+				  url += "&locationLat=" 	+ window.destination.newLocation.lat
+				  url += "&locationLon=" 	+ window.destination.newLocation.lon
+				  url += "&startTime=" 		+ startTime
+				  url += "&endTime=" 		+ endTime
+			               
+				  window.location.href = url
+            }
+      });
+      
+      //--------------------------//
+
+      $("#cancelButton").click(function() {
+         var url = "/destinationEdited"
+         url += "?cancel=1"
+         window.location.href = url
+      });
+   });
+</script>
+
+</html>

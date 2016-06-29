@@ -1,0 +1,6 @@
+CREATE TABLE cities 
+(Country char(2), City varchar, AccentCity varchar, Region char(2), Population int, Latitude double precision, Longitude double precision);
+
+COPY cities FROM '/Users/mad/Desktop/cities.txt' DELIMITERS ',' CSV;
+
+select city from cities where country like 'fr' and city like '%biere%'
